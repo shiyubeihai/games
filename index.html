@@ -26,10 +26,182 @@ body{
   line-height:1.7;
 }
 .wrap{max-width:860px;margin:0 auto;padding:56px 20px 72px}
-/* ---------- header ---------- */
 header{margin-bottom:44px}
 .kicker{
   font-size:11px;letter-spacing:.42em;color:#A9A292;
   text-transform:uppercase;margin:0 0 18px;
 }
 h1{
+  font-size:34px;line-height:1.25;margin:0 0 14px;
+  font-weight:700;letter-spacing:-.01em;color:var(--navy);
+}
+.tagline{color:var(--muted);font-size:15px;margin:0 0 6px}
+.rule{border:0;border-top:1px solid var(--line);margin:30px 0 0}
+.langbar{display:flex;justify-content:flex-end;margin-bottom:8px}
+#langBtn{
+  font:inherit;font-size:13px;color:var(--muted);
+  background:transparent;border:1px solid var(--line);
+  border-radius:999px;padding:5px 14px;cursor:pointer;
+  transition:color .15s,border-color .15s;
+}
+#langBtn:hover{color:var(--navy);border-color:#C9BFAC}
+#langBtn:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.games{display:grid;gap:14px;grid-template-columns:1fr;margin-top:34px}
+@media(min-width:620px){.games{grid-template-columns:1fr 1fr}}
+.card{
+  position:relative;overflow:hidden;
+  display:block;text-decoration:none;color:inherit;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:20px 22px 22px;
+  transition:border-color .18s,transform .18s,box-shadow .18s;
+}
+.card:hover,.card:focus-visible{
+  border-color:var(--accent);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(44,42,38,.07);
+  outline:none;
+}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ghost{
+  position:absolute;right:-6px;bottom:-30px;
+  font-size:96px;line-height:1;font-weight:700;
+  color:var(--accent);opacity:.09;
+  pointer-events:none;user-select:none;
+  letter-spacing:-.04em;
+}
+.name{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:17px;font-weight:600;letter-spacing:.02em;
+  color:var(--accent);margin:0 0 6px;position:relative;
+}
+.desc{font-size:14px;color:var(--muted);margin:0;position:relative;max-width:88%}
+.card[data-accent="gem"]     {--accent:#2E7D8F}
+.card[data-accent="flower"]  {--accent:#B0567A}
+.card[data-accent="tiangan"] {--accent:#A0762A}
+.card[data-accent="dizhi"]   {--accent:#3F7A4E}
+.card[data-accent="fib"]     {--accent:#4A5490}
+footer{
+  margin-top:52px;padding-top:22px;
+  border-top:1px solid var(--line);
+  font-size:13px;color:#948C7C;line-height:1.9;
+}
+footer ul{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-wrap:wrap;gap:6px 20px;
+}
+footer li::before{content:"·";margin-right:8px;color:#C9BFAC}
+html[data-lang="en"] .zh{display:none}
+html[data-lang="zh"] .en{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="langbar">
+    <button id="langBtn" type="button" aria-live="polite">中文</button>
+  </div>
+
+  <header>
+    <p class="kicker">Mini Games</p>
+    <h1>
+      <span class="en">Five small puzzle games</span>
+      <span class="zh">五个小游戏</span>
+    </h1>
+    <p class="tagline">
+      <span class="en">Made for fun. Open it and play — nothing else in the way.</span>
+      <span class="zh">纯属好玩。打开就能玩，中间不夹任何东西。</span>
+    </p>
+    <hr class="rule">
+  </header>
+
+  <main class="games">
+
+    <a class="card" data-accent="gem" href="gem2048/index.html">
+      <span class="ghost">2048</span>
+      <p class="name">gem2048</p>
+      <p class="desc">
+        <span class="en">Slide and merge gems to reach 2048.</span>
+        <span class="zh">宝石版 2048，滑动合并，通关 2048。</span>
+      </p>
+    </a>
+
+    <a class="card" data-accent="flower" href="flowers2048/index.html">
+      <span class="ghost">2048</span>
+      <p class="name">flowers2048</p>
+      <p class="desc">
+        <span class="en">A floral take on 2048 — merge blooms to reach 2048.</span>
+        <span class="zh">花卉版 2048，规则相同，配色更柔和。</span>
+      </p>
+    </a>
+
+    <a class="card" data-accent="tiangan" href="tiangan1024/index.html">
+      <span class="ghost">1024</span>
+      <p class="name">tiangan1024</p>
+      <p class="desc">
+        <span class="en">Merge the ten Celestial Stems (天干) and reach 1024.</span>
+        <span class="zh">以十天干为棋子，合并至 1024。</span>
+      </p>
+    </a>
+
+    <a class="card" data-accent="dizhi" href="dizhi4096/index.html">
+      <span class="ghost">4096</span>
+      <p class="name">dizhi4096</p>
+      <p class="desc">
+        <span class="en">Merge the twelve Terrestrial Branches (地支) and reach 4096.</span>
+        <span class="zh">以十二地支为棋子，合并至 4096。</span>
+      </p>
+    </a>
+
+    <a class="card" data-accent="fib" href="fibonacci233/index.html">
+      <span class="ghost">233</span>
+      <p class="name">fibonacci233</p>
+      <p class="desc">
+        <span class="en">Add adjacent numbers, follow the sequence, reach 233.</span>
+        <span class="zh">相邻数字相加成新数，沿斐波那契数列推进至 233。</span>
+      </p>
+    </a>
+
+  </main>
+
+  <footer>
+    <ul>
+      <li><span class="en">Solo-made</span><span class="zh">个人制作</span></li>
+      <li><span class="en">Single-player</span><span class="zh">单机</span></li>
+      <li><span class="en">Works offline</span><span class="zh">可离线</span></li>
+      <li><span class="en">No ads</span><span class="zh">无广告</span></li>
+    </ul>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn  = document.getElementById('langBtn');
+  var KEY  = 'minigames-lang';
+
+  function apply(lang) {
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+    btn.textContent = lang === 'zh' ? 'English' : '中文';
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+
+  if (saved === 'en' || saved === 'zh') {
+    apply(saved);
+  } else {
+    var zh = /^(zh|zh-)/i.test(navigator.language || '');
+    apply(zh ? 'zh' : 'en');
+  }
+
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+    apply(next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
