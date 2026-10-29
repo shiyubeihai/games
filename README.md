@@ -1,5 +1,4 @@
 # games
-# （仓库名）
 
 A small collection of puzzle games, made for fun.
 
