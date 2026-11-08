@@ -1,3 +1,5 @@
+[Support|请我喝杯柠檬水](https://mbd.pub/o/author-bW2ZnGtkZQ==/work)
+
 # games
 
 A small collection of puzzle games, made for fun.
