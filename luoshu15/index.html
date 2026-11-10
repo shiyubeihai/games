@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#F5F0E4">
+<title>洛书十五</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;margin:0}
+
+:root{
+  --paper:#F5F0E4;
+  --paper-2:#EDE6D5;
+  --tile:#FFFFFF;
+  --tile-edge:#DFD5C0;
+  --ink:#2E2A24;
+  --ink-soft:#6B6053;
+  --ink-dim:#8D8172;
+  --accent:#A8643C;
+  --accent-soft:#FBF1E1;
+  --ok:#2F6B4F;
+  --bad:#B54B45;
+}
+
+body{
+  background:
+    radial-gradient(120% 80% at 50% 0%, #FBF7EC 0%, var(--paper) 55%, var(--paper-2) 100%);
+  background-attachment:fixed;
+  color:var(--ink);
+  font:15px/1.5 system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;
+  -webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;
+  display:flex;justify-content:center;
+  touch-action:manipulation;
+}
+
+.app{
+  width:min(94vw,420px);
+  min-height:100dvh;
+  display:flex;flex-direction:column;
+  gap:12px;
+  padding:calc(14px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom));
+}
+
+/* ---------- 头部 ---------- */
+header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;flex:0 0 auto;
+}
+.head-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+h1{
+  margin:0;
+  font-family:ui-serif,Georgia,"Songti SC","STSong",serif;
+  font-size:22px;font-weight:600;letter-spacing:3px;color:var(--ink);
+}
+.tagline{margin:0;font-size:11px;color:var(--ink-dim);letter-spacing:.4px}
+
+/* ---------- HUD ---------- */
+.hud{display:flex;gap:8px;flex:0 0 auto}
+.hud-item{
+  flex:1;background:#FFFFFF;border:1px solid var(--tile-edge);
+  border-radius:11px;padding:7px 10px 6px;
+  box-shadow:0 2px 6px rgba(140,115,80,.07);
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+}
+.hud-item span{font-size:10px;color:var(--ink-dim);letter-spacing:.8px}
+.hud-item b{
+  font-family:ui-serif,Georgia,serif;
+  font-size:17px;font-weight:700;color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.hud-item b small{font-size:11px;font-weight:400;color:var(--ink-dim);margin-left:1px}
+
+.progress{
+  height:4px;border-radius:2px;background:rgba(168,100,60,.12);
+  overflow:hidden;flex:0 0 auto;
+}
+.progress-fill{
+  height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,#C98B58,var(--accent));
+  transition:width .3s cubic-bezier(.3,.9,.4,1);
+}
+
+/* ---------- 棋盘 ---------- */
+.board-wrap{
+  flex:1 1 auto;
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;padding:10px 0 0;
+  min-height:0;
+}
+.board{
+  width:100%;aspect-ratio:1/1;flex:0 0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+.block{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+
+.cell{
+  border:1px solid var(--tile-edge);
+  background:var(--tile);
+  border-radius:7px;
+  font:inherit;padding:0;margin:0;
+  cursor:pointer;
+  display:grid;place-items:center;
+  color:var(--ink);
+  font-family:ui-serif,Georgia,"Songti SC",serif;
+  font-size:clamp(20px,6vw,29px);
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  box-shadow:
+    0 1px 2px rgba(140,115,80,.08),
+    inset 0 1px 0 #FFFFFF;
+  transition:background .12s,border-color .12s,transform .1s,box-shadow .12s;
+  position:relative;
+}
+.cell:active{transform:scale(.96)}
+
+.cell.sel{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  border-width:2px;
+  color:var(--accent);
+  box-shadow:0 0 0 2px rgba(168,100,60,.14);
+}
+
+@keyframes pop{
+  0%{transform:scale(1);opacity:1}
+  45%{transform:scale(1.22);opacity:1;background:#F6E6CC;border-color:var(--accent)}
+  100%{transform:scale(.4);opacity:0}
+}
+.cell.pop{animation:pop .23s ease-out forwards;pointer-events:none}
+
+@keyframes freshIn{
+  0%{opacity:0;transform:translateY(-5px) scale(.9)}
+  100%{opacity:1;transform:none}
+}
+.cell.fresh{animation:freshIn .26s cubic-bezier(.2,.8,.3,1)}
+
+@keyframes badFlash{
+  0%{background:#F6DCDC;border-color:var(--bad)}
+  100%{background:var(--tile);border-color:var(--tile-edge)}
+}
+.cell.bad{animation:badFlash .34s ease-out}
+
+@keyframes hintPulse{
+  0%,100%{
+    background:#EBF4EE;
+    border-color:#4E9A72;
+    box-shadow:0 0 0 0 rgba(62,138,99,0);
+  }
+  50%{
+    background:#DCEFE3;
+    border-color:#2F6B4F;
+    box-shadow:0 0 0 5px rgba(47,107,79,.17);
+  }
+}
+.cell.hint{animation:hintPulse 1.1s ease-in-out 2}
+
+/* ---------- 棋盘下方：选择信息 + 提示 ---------- */
+.under-board{
+  width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;min-height:32px;
+}
+.sel-info{
+  flex:1 1 auto;min-width:0;
+  font-size:12px;color:var(--ink-soft);
+  letter-spacing:.3px;font-variant-numeric:tabular-nums;
+  transition:opacity .15s;
+}
+
+.hint-btn{
+  flex:0 0 auto;
+  padding:7px 15px;border-radius:999px;
+  border:1px solid var(--accent);background:transparent;
+  color:var(--accent);
+  font:600 12px/1 inherit;letter-spacing:.5px;
+  cursor:pointer;white-space:nowrap;
+  transition:background .15s,border-color .15s,color .15s,opacity .15s;
+}
+.hint-btn:hover:not(:disabled){background:var(--accent-soft)}
+.hint-btn:active:not(:disabled){transform:scale(.96)}
+.hint-btn:disabled{
+  opacity:.35;border-color:var(--tile-edge);color:var(--ink-dim);cursor:default;
+}
+
+/* ---------- 提示条 ---------- */
+.toast{
+  position:fixed;left:50%;top:14%;
+  transform:translate(-50%,-6px);
+  padding:7px 18px;border-radius:999px;
+  background:rgba(46,42,36,.86);
+  color:#FBF7EC;font-size:12.5px;letter-spacing:.5px;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s,transform .22s;
+  z-index:40;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- 声音开关 ---------- */
+.sound{
+  position:relative;z-index:40;
+  flex:0 0 auto;
+  width:36px;height:36px;
+  margin-top:1px;
+  border-radius:50%;
+  border:1px solid var(--tile-edge);
+  background:rgba(255,255,255,.82);
+  color:var(--ink-dim);
+  font:600 11px/1 inherit;
+  cursor:pointer;
+  display:grid;place-items:center;
+  letter-spacing:.06em;
+  box-shadow:0 2px 8px rgba(140,115,80,.14);
+  transition:color .25s,background .25s,border-color .25s,opacity .3s;
+  opacity:.85;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.sound:hover{opacity:1}
+.sound.on{color:var(--accent);border-color:rgba(168,100,60,.45);background:rgba(255,255,255,.86)}
+
+/* ---------- 覆盖层 ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:30;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;text-align:center;padding:28px 24px;
+  background:rgba(248,243,232,.95);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  overflow-y:auto;
+}
+.overlay[hidden]{display:none}
+
+.ov-title{
+  font-family:ui-serif,Georgia,"Songti SC",serif;
+  font-size:27px;font-weight:600;letter-spacing:6px;color:var(--ink);
+}
+.ov-sub{font-size:12.5px;color:var(--ink-soft);line-height:1.95;max-width:29ch}
+.ov-sub b{color:var(--accent);font-weight:700}
+
+.rules{
+  display:grid;gap:7px;text-align:left;
+  font-size:12.5px;color:var(--ink-soft);line-height:1.7;
+  max-width:34ch;margin:2px 0;
+}
+.rules span{white-space:nowrap}
+.rules div{display:flex;gap:8px}
+.rules i{
+  flex:none;font-style:normal;width:16px;height:16px;line-height:16px;
+  text-align:center;border-radius:50%;
+  background:rgba(168,100,60,.13);color:var(--accent);
+  font-size:10px;font-weight:700;margin-top:2px;
+}
+
+.btn{
+  padding:12px 42px;border:none;border-radius:999px;
+  font:600 14px/1 inherit;color:#FFFFFF;
+  background:linear-gradient(135deg,#BE7C4E,#A8643C);
+  cursor:pointer;letter-spacing:1px;
+  box-shadow:0 6px 16px rgba(168,100,60,.28);
+  transition:transform .08s;
+}
+.btn:active{transform:scale(.97);filter:brightness(1.05)}
+
+/* 最快记录 */
+.best-list{
+  display:grid;gap:5px;margin-top:2px;
+  font-size:12.5px;color:var(--ink-soft);
+  min-width:180px;
+}
+.best-row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:5px 12px;border-radius:8px;
+  font-variant-numeric:tabular-nums;
+}
+.best-row.now{background:rgba(168,100,60,.10);color:var(--accent);font-weight:700}
+.best-row .k{font-size:11px;opacity:.75}
+.best-row .v{font-family:ui-serif,Georgia,serif;font-size:14px;font-weight:700}
+
+.ov-empty{font-size:12px;color:var(--ink-dim);font-style:normal}
+
+@media (prefers-reduced-motion:reduce){
+  .cell,.progress-fill,.toast{transition:none}
+  .cell.pop,.cell.fresh,.cell.bad{animation-duration:.01s}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="head-text">
+      <h1>洛书十五</h1>
+      <p class="tagline">四个九宫格 · 横竖斜三数之和为十五</p>
+    </div>
+    <button class="sound" id="soundBtn" type="button" aria-label="声音开关">静</button>
+  </header>
+
+  <div class="hud">
+    <div class="hud-item"><span>得分</span><b id="scoreEl">0<small>/600</small></b></div>
+    <div class="hud-item"><span>用时</span><b id="timerEl">0:00</b></div>
+  </div>
+
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+    <div class="under-board">
+      <div class="sel-info" id="selInfo"></div>
+      <button class="hint-btn" id="hintBtn" type="button" disabled>提示 3</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="ov-title">洛书十五</div>
+  <div class="ov-sub">
+    九宫格里，横、竖、斜任意三个数<b>相加等于十五</b>就能消掉
+  </div>
+
+  <div class="rules">
+    <div><i>1</i><span>棋盘分四块，各自九宫格</span></div>
+    <div><i>2</i><span>点三格，横竖斜和为 15</span></div>
+    <div><i>3</i><span>消后下落，顶部补新数</span></div>
+    <div><i>4</i><span>满 600 分，<b>用时最短</b></span></div>
+  </div>
+
+  <div class="best-list" id="bestList"></div>
+
+  <button class="btn" id="startBtn">开始</button>
+</div>
+
+<script>
+"use strict";
+
+/* ================= 参数 ================= */
+const N = 6;
+const TARGET = 600;
+const PER_GROUP = 15;
+const POP_MS = 230;
+const KEY = 'luoshu.race.v1';
+
+/* ================= 状态 ================= */
+let board = new Array(N * N).fill(0);
+const cells = new Array(N * N).fill(null);
+let selected = [];
+let score = 0;
+let startAt = 0;
+let running = false;
+let busy = false;
+let rafId = null;
+let popTimer = null;
+let toastTimer = null;
+let hintTimer = null;
+let hintsLeft = 3;
+
+/* ================= DOM ================= */
+const boardEl = document.getElementById('board');
+const scoreEl = document.getElementById('scoreEl');
+const timerEl = document.getElementById('timerEl');
+const progressFill = document.getElementById('progressFill');
+const selInfo = document.getElementById('selInfo');
+const hintBtn = document.getElementById('hintBtn');
+const overlayEl = document.getElementById('overlay');
+const bestListEl = document.getElementById('bestList');
+const toastEl = document.getElementById('toast');
+const startBtn = document.getElementById('startBtn');
+const soundBtn = document.getElementById('soundBtn');
+
+/* ================= 工具 ================= */
+const idx = (r, c) => r * N + c;
+
+function randDigit(){ return 1 + Math.floor(Math.random() * 9); }
+
+function sameBlock(r1, c1, r2, c2){
+  return (r1 < 3) === (r2 < 3) && (c1 < 3) === (c2 < 3);
+}
+
+function collinear(r1, c1, r2, c2, r3, c3){
+  return (r2 - r1) * (c3 - c1) === (c2 - c1) * (r3 - r1);
+}
+
+/* 块内两点能否连出第三个落在块里的整点 */
+function canComplete(a, b){
+  const br = Math.floor(a.r / 3) * 3;
+  const bc = Math.floor(a.c / 3) * 3;
+  for (let dr = 0; dr < 3; dr++){
+    for (let dc = 0; dc < 3; dc++){
+      const r3 = br + dr, c3 = bc + dc;
+      if ((r3 === a.r && c3 === a.c) || (r3 === b.r && c3 === b.c)) continue;
+      if (collinear(a.r, a.c, b.r, b.c, r3, c3)) return true;
+    }
+  }
+  return false;
+}
+
+function fmt(ms){
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  return m + ':' + String(s % 60).padStart(2, '0');
+}
+
+/* =========================================================
+   声音：仿古琴五声音阶 BGM + 消除清响
+   BGM 取《良宵引》的疏朗气质：C 宫五声、长衰减、留白多
+   ========================================================= */
+const BGM_NOTES = [
+  /* 段一：低起 */
+  [0.0,  261.63, 2.6, 0.050], [0.0,  130.81, 3.4, 0.028],
+  [2.0,  220.00],
+  [4.0,  261.63],
+  [5.8,  293.66],
+  [7.6,  261.63],
+  [9.6,  220.00],
+  [11.4, 196.00, 2.6, 0.048],
+  [13.2, 220.00],
+  [15.2, 261.63], [15.2, 523.25, 2.0, 0.015],
+  [17.0, 293.66],
+  [18.8, 329.63, 2.8, 0.050],
+
+  /* 段二：上行 */
+  [20.6, 293.66, 2.6, 0.050], [20.6, 146.83, 3.2, 0.026],
+  [22.4, 261.63],
+  [24.2, 220.00],
+  [26.0, 261.63],
+  [27.8, 293.66],
+  [29.6, 329.63],
+  [31.4, 392.00, 2.8, 0.048],
+  [33.2, 329.63],
+  [35.0, 293.66], [35.0, 587.33, 2.0, 0.014],
+  [36.8, 261.63],
+  [38.6, 220.00, 2.8, 0.048],
+
+  /* 段三：回落 */
+  [40.4, 196.00, 2.8, 0.048], [40.4, 130.81, 3.4, 0.026],
+  [42.2, 220.00],
+  [44.0, 261.63],
+  [45.8, 293.66],
+  [47.6, 261.63],
+  [49.4, 220.00],
+  [51.2, 196.00, 2.6, 0.046],
+  [53.0, 261.63],
+  [54.8, 220.00],
+  [56.6, 196.00, 2.8, 0.046],
+  [58.4, 261.63, 2.6, 0.050], [58.4, 130.81, 3.4, 0.028]
+];
+
+const Sound = (() => {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let actx = null, master = null;
+  let on = false;
+  let nextLoopAt = 0;
+  let loopTimer = null;
+
+  function init(){
+    if (actx || !AC) return;
+    try {
+      actx = new AC();
+      master = actx.createGain();
+      master.gain.value = 1;
+      master.connect(actx.destination);
+    } catch (e){ actx = null; }
+  }
+
+  function unlock(){
+    init();
+    if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+  }
+
+  /* 一个拨弦音：正弦基频 + 二三次谐波，低通随衰减变暗 */
+  function pluck(freq, at, dur, vol){
+    if (!actx || !on) return;
+
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(vol, at + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+
+    const lp = actx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.value = 0.4;
+    lp.frequency.setValueAtTime(2800, at);
+    lp.frequency.exponentialRampToValueAtTime(900, at + dur);
+
+    const o1 = actx.createOscillator();
+    o1.type = 'sine'; o1.frequency.value = freq;
+
+    const o2 = actx.createOscillator();
+    o2.type = 'sine'; o2.frequency.value = freq * 2;
+    const g2 = actx.createGain(); g2.gain.value = 0.28;
+
+    const o3 = actx.createOscillator();
+    o3.type = 'sine'; o3.frequency.value = freq * 3;
+    const g3 = actx.createGain(); g3.gain.value = 0.09;
+
+    o1.connect(g);
+    o2.connect(g2); g2.connect(g);
+    o3.connect(g3); g3.connect(g);
+    g.connect(lp);
+    lp.connect(master);
+
+    const end = at + dur + 0.02;
+    o1.start(at); o2.start(at); o3.start(at);
+    o1.stop(end); o2.stop(end); o3.stop(end);
+  }
+
+  /* 整段 60 秒一次排完，提前 6 秒补下一段 */
+  function scheduleLoop(){
+    if (!on || !actx) return;
+    if (document.hidden){ loopTimer = null; return; }
+
+    const t0 = Math.max(actx.currentTime + 0.15, nextLoopAt);
+    for (let i = 0; i < BGM_NOTES.length; i++){
+      const n = BGM_NOTES[i];
+      pluck(n[1], t0 + n[0], n[2] || 2.4, n[3] || 0.048);
+    }
+    nextLoopAt = t0 + 60;
+
+    clearTimeout(loopTimer);
+    loopTimer = setTimeout(scheduleLoop, 54000);
+  }
+
+  function startBgm(){
+    init();
+    if (!actx || !on) return;
+    if (actx.state === 'suspended') actx.resume().catch(() => {});
+    if (loopTimer) return;
+    scheduleLoop();
+  }
+
+  function stopBgm(){
+    clearTimeout(loopTimer);
+    loopTimer = null;
+    if (actx && actx.state === 'running') actx.suspend().catch(() => {});
+  }
+
+  /* 消除成功：G5 + C6 的清响，短促不拖尾 */
+  function ding(){
+    if (!actx || !on) return;
+    const now = actx.currentTime;
+
+    const o1 = actx.createOscillator();
+    o1.type = 'sine'; o1.frequency.value = 783.99;
+
+    const o2 = actx.createOscillator();
+    o2.type = 'sine'; o2.frequency.value = 1046.50;
+    const g2 = actx.createGain(); g2.gain.value = 0.40;
+
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.075, now + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+
+    o1.connect(g);
+    o2.connect(g2); g2.connect(g);
+    g.connect(master);
+
+    o1.start(now); o2.start(now);
+    o1.stop(now + 0.45); o2.stop(now + 0.45);
+  }
+
+  return {
+    unlock,
+    ding,
+    set(v){
+      on = !!v;
+      if (on) startBgm(); else stopBgm();
+    },
+    isOn(){ return on; },
+    pause(){ if (actx && on && actx.state === 'running') actx.suspend().catch(() => {}); },
+    resume(){
+      if (!actx || !on) return;
+      if (actx.state === 'suspended') actx.resume().catch(() => {});
+      if (!loopTimer) scheduleLoop();
+    }
+  };
+})();
+
+/* 某一块的 8 条线：3 行 + 3 列 + 2 对角 */
+function blockLines(br, bc){
+  const at = (r, c) => [br * 3 + r, bc * 3 + c];
+  const L = [];
+  for (let i = 0; i < 3; i++){
+    L.push([at(i, 0), at(i, 1), at(i, 2)]);
+    L.push([at(0, i), at(1, i), at(2, i)]);
+  }
+  L.push([at(0, 0), at(1, 1), at(2, 2)]);
+  L.push([at(0, 2), at(1, 1), at(2, 0)]);
+  return L;
+}
+
+/* 找第一组可消的三连，找不到返回 null */
+function findMove(){
+  for (let br = 0; br < 2; br++){
+    for (let bc = 0; bc < 2; bc++){
+      const lines = blockLines(br, bc);
+      for (let k = 0; k < lines.length; k++){
+        const ln = lines[k];
+        let s = 0;
+        for (let j = 0; j < 3; j++) s += board[idx(ln[j][0], ln[j][1])];
+        if (s === 15) return ln;
+      }
+    }
+  }
+  return null;
+}
+
+function hasMove(){ return findMove() !== null; }
+
+/* ================= 构建棋盘 ================= */
+function buildBoard(){
+  boardEl.innerHTML = '';
+  for (let b = 0; b < 4; b++){
+    const br = Math.floor(b / 2);
+    const bc = b % 2;
+    const blockEl = document.createElement('div');
+    blockEl.className = 'block';
+
+    for (let i = 0; i < 9; i++){
+      const r = br * 3 + Math.floor(i / 3);
+      const c = bc * 3 + (i % 3);
+
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'cell';
+      el.setAttribute('aria-label', '第' + (r + 1) + '行 第' + (c + 1) + '列');
+      el.addEventListener('click', () => onCellClick(r, c));
+
+      blockEl.appendChild(el);
+      cells[idx(r, c)] = el;
+    }
+    boardEl.appendChild(blockEl);
+  }
+}
+
+/* ================= 渲染 ================= */
+function paint(freshSet){
+  for (let r = 0; r < N; r++){
+    for (let c = 0; c < N; c++){
+      const i = idx(r, c);
+      const el = cells[i];
+      const v = board[i];
+
+      el.textContent = v ? String(v) : '';
+
+      if (freshSet && freshSet.has(i)){
+        el.classList.remove('fresh');
+        void el.offsetWidth;
+        el.classList.add('fresh');
+      }
+    }
+  }
+}
+
+function paintSelection(){
+  for (let r = 0; r < N; r++){
+    for (let c = 0; c < N; c++){
+      cells[idx(r, c)].classList.toggle('sel',
+        selected.some(p => p.r === r && p.c === c));
+    }
+  }
+
+  if (!selected.length){
+    selInfo.textContent = '';
+    return;
+  }
+  let sum = 0;
+  for (let i = 0; i < selected.length; i++){
+    sum += board[idx(selected[i].r, selected[i].c)];
+  }
+  selInfo.textContent = '已选 ' + selected.length + ' 格 · 和 ' + sum;
+}
+
+function updateHUD(){
+  scoreEl.innerHTML = score + '<small>/' + TARGET + '</small>';
+  progressFill.style.width = Math.min(100, score / TARGET * 100) + '%';
+}
+
+/* ================= 交互 ================= */
+function onCellClick(r, c){
+  if (!running || busy) return;
+
+  clearHints();
+
+  /* 点已选中的格子 → 取消 */
+  const si = selected.findIndex(p => p.r === r && p.c === c);
+  if (si >= 0){
+    selected.splice(si, 1);
+    paintSelection();
+    return;
+  }
+
+  /* 第一个 */
+  if (selected.length === 0){
+    selected.push({ r, c });
+    paintSelection();
+    return;
+  }
+
+  const first = selected[0];
+
+  /* 第二个：必须和第一格同一个九宫格，且这两格在块内还能连出第三点 */
+  if (selected.length === 1){
+    if (!sameBlock(first.r, first.c, r, c)
+        || !canComplete(first, { r, c })){
+      reject(r, c);
+      return;
+    }
+    selected.push({ r, c });
+    paintSelection();
+    return;
+  }
+
+  /* 第三个：同块 + 共线 + 和等于 15 */
+  const second = selected[1];
+
+  if (!sameBlock(first.r, first.c, r, c)
+      || !collinear(first.r, first.c, second.r, second.c, r, c)){
+    reject(r, c);
+    return;
+  }
+
+  const sum = board[idx(first.r, first.c)]
+            + board[idx(second.r, second.c)]
+            + board[idx(r, c)];
+
+  if (sum !== 15){
+    reject(r, c);
+    return;
+  }
+
+  eliminate([first, second, { r, c }]);
+}
+
+/* ================= 提示 ================= */
+function clearHints(){
+  if (hintTimer){ clearTimeout(hintTimer); hintTimer = null; }
+  for (let i = 0; i < N * N; i++) cells[i].classList.remove('hint');
+}
+
+function updateHintBtn(){
+  hintBtn.textContent = '提示 ' + hintsLeft;
+  hintBtn.disabled = (!running) || hintsLeft <= 0;
+}
+
+function useHint(){
+  if (!running || busy || hintsLeft <= 0) return;
+
+  const line = findMove();
+  if (!line){
+    toast('眼前没有可消的组合，试试换一组数字');
+    return;
+  }
+
+  hintsLeft--;
+  updateHintBtn();
+
+  /* 提示相当于放弃当前的选择 */
+  selected = [];
+  paintSelection();
+  clearHints();
+
+  for (let i = 0; i < line.length; i++){
+    const el = cells[idx(line[i][0], line[i][1])];
+    el.classList.add('hint');
+  }
+
+  hintTimer = setTimeout(() => {
+    hintTimer = null;
+    for (let i = 0; i < line.length; i++){
+      cells[idx(line[i][0], line[i][1])].classList.remove('hint');
+    }
+  }, 2300);
+}
+
+hintBtn.addEventListener('click', useHint);
+
+/* 点错时只闪红，不清空已选的格子——少让玩家重来 */
+function reject(r, c){
+  const el = cells[idx(r, c)];
+  el.classList.remove('bad');
+  void el.offsetWidth;
+  el.classList.add('bad');
+}
+
+/* ================= 消除 ================= */
+function eliminate(list){
+  busy = true;
+
+  Sound.ding();
+
+  score += PER_GROUP;
+  updateHUD();
+
+  for (let i = 0; i < list.length; i++){
+    cells[idx(list[i].r, list[i].c)].classList.add('pop');
+  }
+
+  clearTimeout(popTimer);
+  popTimer = setTimeout(() => {
+    for (let i = 0; i < list.length; i++){
+      const p = list[i];
+      board[idx(p.r, p.c)] = 0;
+      cells[idx(p.r, p.c)].classList.remove('pop');
+    }
+
+    selected = [];
+    dropAndFill(list);
+    paintSelection();
+
+    if (score >= TARGET){
+      finish();
+      return;
+    }
+
+    if (!hasMove()){
+      autoShuffle();
+    }
+
+    busy = false;
+  }, POP_MS);
+}
+
+/* 消除后：受影响列压实到底部，顶部补新数 */
+function dropAndFill(cleared){
+  const cols = {};
+  for (let i = 0; i < cleared.length; i++) cols[cleared[i].c] = true;
+
+  const freshSet = new Set();
+
+  for (let c = 0; c < N; c++){
+    if (!cols[c]) continue;
+
+    const vals = [];
+    for (let r = 0; r < N; r++){
+      const v = board[idx(r, c)];
+      if (v) vals.push(v);
+    }
+
+    const top = N - vals.length;
+    for (let r = 0; r < N; r++){
+      if (r < top){
+        board[idx(r, c)] = randDigit();
+        freshSet.add(idx(r, c));
+      } else {
+        board[idx(r, c)] = vals[r - top];
+      }
+    }
+  }
+
+  paint(freshSet);
+}
+
+/* 无解时整体重排 */
+function autoShuffle(){
+  clearHints();
+  let tries = 0;
+  do {
+    for (let i = 0; i < N * N; i++) board[i] = randDigit();
+    tries++;
+  } while (!hasMove() && tries < 60);
+
+  const freshSet = new Set();
+  for (let i = 0; i < N * N; i++) freshSet.add(i);
+
+  selected = [];
+  paint(freshSet);
+  paintSelection();
+  toast('这一局暂时没有可消的组合 · 已重排');
+}
+
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+}
+
+/* ================= 计时 ================= */
+function tick(){
+  if (!running) return;
+  timerEl.textContent = fmt(performance.now() - startAt);
+  rafId = requestAnimationFrame(tick);
+}
+
+/* ================= 开始 ================= */
+function startGame(){
+  Sound.unlock();
+
+  clearTimeout(popTimer);
+  clearTimeout(toastTimer);
+  toastEl.classList.remove('show');
+  if (rafId) cancelAnimationFrame(rafId);
+
+  /* 初始盘面：确保至少有一组可消 */
+  let tries = 0;
+  do {
+    for (let i = 0; i < N * N; i++) board[i] = randDigit();
+    tries++;
+  } while (!hasMove() && tries < 60);
+
+  selected = [];
+  score = 0;
+  busy = false;
+  running = true;
+  hintsLeft = 3;
+
+  clearHints();
+  for (let i = 0; i < N * N; i++) cells[i].classList.remove('pop', 'bad', 'fresh');
+  updateHintBtn();
+
+  paint();
+  paintSelection();
+  updateHUD();
+
+  overlayEl.hidden = true;
+
+  startAt = performance.now();
+  timerEl.textContent = '0:00';
+  rafId = requestAnimationFrame(tick);
+}
+
+/* ================= 结束 ================= */
+function finish(){
+  running = false;
+  updateHintBtn();
+  clearHints();
+  if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+
+  const used = performance.now() - startAt;
+  timerEl.textContent = fmt(used);
+
+  const before = loadBest();
+  const prevBest = before.length ? before[0] : Infinity;
+  const isRecord = used < prevBest;
+
+  const list = before.concat([used]).sort((a, b) => a - b);
+  const top5 = list.slice(0, 5);
+  saveBest(top5);
+
+  showResult(used, top5, isRecord);
+}
+
+function showResult(used, top5, isRecord){
+  const rank = top5.indexOf(used);
+
+  let rows = '';
+  if (!top5.length){
+    rows = '<div class="ov-empty">还没有记录</div>';
+  } else {
+    for (let i = 0; i < top5.length; i++){
+      const cls = (i === rank) ? ' best-row now' : 'best-row';
+      rows += '<div class="' + cls + '">'
+            + '<span class="k">第 ' + (i + 1) + ' 名</span>'
+            + '<span class="v">' + fmt(top5[i]) + '</span>'
+            + '</div>';
+    }
+  }
+
+  overlayEl.innerHTML =
+    '<div class="ov-title">' + (isRecord ? '新纪录' : '完成') + '</div>'
+    + '<div class="ov-sub">用时 <b style="font-size:20px;font-family:ui-serif,Georgia,serif">'
+      + fmt(used) + '</b></div>'
+    + '<div class="best-list">' + rows + '</div>'
+    + '<button class="btn" id="againBtn">再来一局</button>';
+
+  overlayEl.hidden = false;
+
+  const again = document.getElementById('againBtn');
+  if (again) again.addEventListener('click', startGame);
+}
+
+/* ================= 存档 ================= */
+function loadBest(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    if (!data || !Array.isArray(data.top5)) return [];
+    return data.top5
+      .filter(t => typeof t === 'number' && isFinite(t) && t > 0)
+      .slice(0, 5);
+  } catch (e){
+    return [];
+  }
+}
+
+function saveBest(arr){
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ version: 1, top5: arr }));
+  } catch (e){}
+}
+
+/* ================= 开始按钮 & 启动 ================= */
+function refreshBestPreview(){
+  const list = loadBest();
+  if (!list.length){
+    bestListEl.innerHTML = '<div class="ov-empty">还没有记录</div>';
+    return;
+  }
+  let html = '';
+  for (let i = 0; i < list.length; i++){
+    html += '<div class="best-row">'
+          + '<span class="k">第 ' + (i + 1) + ' 名</span>'
+          + '<span class="v">' + fmt(list[i]) + '</span>'
+          + '</div>';
+  }
+  bestListEl.innerHTML = html;
+}
+
+startBtn.addEventListener('click', startGame);
+
+/* ================= 声音开关 ================= */
+soundBtn.addEventListener('click', () => {
+  Sound.unlock();
+  const next = !Sound.isOn();
+  Sound.set(next);
+  soundBtn.classList.toggle('on', next);
+  soundBtn.textContent = next ? '声' : '静';
+});
+
+/* ================= 切后台 =================
+   暂停 BGM，并从计时里扣掉离开的这段时间 */
+let hiddenAt = 0;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    hiddenAt = performance.now();
+    Sound.pause();
+    return;
+  }
+  if (hiddenAt && running){
+    startAt += performance.now() - hiddenAt;
+  }
+  hiddenAt = 0;
+  Sound.resume();
+});
+
+(function boot(){
+  buildBoard();
+
+  /* 开局前先摆一副静态盘面，让界面不空 */
+  let tries = 0;
+  do {
+    for (let i = 0; i < N * N; i++) board[i] = randDigit();
+    tries++;
+  } while (!hasMove() && tries < 60);
+  paint();
+
+  refreshBestPreview();
+})();
+</script>
+</body>
+</html>
