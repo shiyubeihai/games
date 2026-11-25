@@ -76,8 +76,8 @@ h1{
   letter-spacing:-.04em;
 }
 .name{
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:17px;font-weight:600;letter-spacing:.02em;
+  font-family:inherit;
+  font-size:17.5px;font-weight:700;letter-spacing:.02em;
   color:var(--accent);margin:0 0 6px;position:relative;
 }
 .desc{font-size:14px;color:var(--muted);margin:0;position:relative;max-width:88%}
@@ -125,27 +125,18 @@ html[data-lang="zh"] .en{display:none}
 
   <main class="games">
 
-    <a class="card" data-accent="gem" href="gem2048/index.html">
-      <span class="ghost">2048</span>
-      <p class="name">gem2048</p>
+    <a class="card" data-accent="luoshu" href="luoshu15/index.html">
+      <span class="ghost">15</span>
+      <p class="name"><span class="en">Luoshu 15</span><span class="zh">洛书十五</span></p>
       <p class="desc">
-        <span class="en">Slide and merge gems to reach 2048.</span>
-        <span class="zh">宝石版 2048，滑动合并，通关 2048。</span>
-      </p>
-    </a>
-
-    <a class="card" data-accent="flower" href="flowers2048/index.html">
-      <span class="ghost">2048</span>
-      <p class="name">flowers2048</p>
-      <p class="desc">
-        <span class="en">A floral take on 2048 — merge blooms to reach 2048.</span>
-        <span class="zh">花卉版 2048，规则相同，配色更柔和。</span>
+        <span class="en">Four nine-cell squares. Tap three that lie on a line and add up to 15 to clear them.</span>
+        <span class="zh">四个九宫格，横竖斜三数之和为十五即可消除，凑满 600 分。</span>
       </p>
     </a>
 
     <a class="card" data-accent="tiangan" href="tiangan1024/index.html">
       <span class="ghost">1024</span>
-      <p class="name">tiangan1024</p>
+      <p class="name"><span class="en">Heavenly Stems 1024</span><span class="zh">天干1024</span></p>
       <p class="desc">
         <span class="en">Merge the ten Celestial Stems (天干) and reach 1024.</span>
         <span class="zh">以十天干为棋子，合并至 1024。</span>
@@ -154,7 +145,7 @@ html[data-lang="zh"] .en{display:none}
 
     <a class="card" data-accent="dizhi" href="dizhi4096/index.html">
       <span class="ghost">4096</span>
-      <p class="name">dizhi4096</p>
+      <p class="name"><span class="en">Earthly Branches 4096</span><span class="zh">地支4096</span></p>
       <p class="desc">
         <span class="en">Merge the twelve Terrestrial Branches (地支) and reach 4096.</span>
         <span class="zh">以十二地支为棋子，合并至 4096。</span>
@@ -163,19 +154,28 @@ html[data-lang="zh"] .en{display:none}
 
     <a class="card" data-accent="fib" href="fibonacci233/index.html">
       <span class="ghost">233</span>
-      <p class="name">fibonacci233</p>
+      <p class="name"><span class="en">Fibonacci 233</span><span class="zh">斐波那契数列233</span></p>
       <p class="desc">
         <span class="en">Add adjacent numbers, follow the sequence, reach 233.</span>
         <span class="zh">相邻数字相加成新数，沿斐波那契数列推进至 233。</span>
       </p>
     </a>
 
-    <a class="card" data-accent="luoshu" href="luoshu15/index.html">
-      <span class="ghost">15</span>
-      <p class="name">luoshu15</p>
+    <a class="card" data-accent="gem" href="gem2048/index.html">
+      <span class="ghost">2048</span>
+      <p class="name"><span class="en">Gems 2048</span><span class="zh">宝石2048</span></p>
       <p class="desc">
-        <span class="en">Four nine-cell squares. Tap three that lie on a line and add up to 15 to clear them.</span>
-        <span class="zh">四个九宫格，横竖斜三数之和为十五即可消除，凑满 600 分。</span>
+        <span class="en">Slide and merge gems to reach 2048.</span>
+        <span class="zh">宝石版 2048，滑动合并，通关 2048。</span>
+      </p>
+    </a>
+
+    <a class="card" data-accent="flower" href="flowers2048/index.html">
+      <span class="ghost">2048</span>
+      <p class="name"><span class="en">Flowers 2048</span><span class="zh">花卉2048</span></p>
+      <p class="desc">
+        <span class="en">A floral take on 2048 — merge blooms to reach 2048.</span>
+        <span class="zh">花卉版 2048，规则相同，配色更柔和。</span>
       </p>
     </a>
 
